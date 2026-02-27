@@ -10,6 +10,8 @@
     "clean": "rm -rf .expo node_modules"
   },
   "dependencies": {
+    "@hugeicons/core-free-icons": "^3.3.0",
+    "@hugeicons/react-native": "^1.0.11",
     "@react-navigation/native": "^7.0.0",
     "@rn-primitives/portal": "~1.3.0",
     "@rn-primitives/slot": "^1.2.0",
