@@ -1,25 +1,33 @@
-import '@/global.css';
+import * as Font from "expo-font";
+import { useEffect, useState } from "react";
+import { View, Text } from "react-native";
+import { Slot } from "expo-router";
+import {
+  useFonts,
+  Raleway_400Regular,
+  Raleway_500Medium,
+  Raleway_600SemiBold,
+  Raleway_700Bold,
+  Raleway_800ExtraBold,
+} from "@expo-google-fonts/raleway";
+import { PortalHost } from "@rn-primitives/portal";
+export default function App() {
+  // const [loaded, setLoaded] = useState(false);
 
-import { NAV_THEME } from '@/lib/theme';
-import { ThemeProvider } from '@react-navigation/native';
-import { PortalHost } from '@rn-primitives/portal';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useColorScheme } from 'nativewind';
+  const [fontsLoaded] = useFonts({
+    Raleway_400Regular,
+    Raleway_500Medium,
+    Raleway_600SemiBold,
+    Raleway_700Bold,
+    Raleway_800ExtraBold,
+  });
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
-
-export default function RootLayout() {
-  const { colorScheme } = useColorScheme();
+  if (!fontsLoaded) return null;
 
   return (
-    <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-			<Stack />
+    <>
+      <Slot />
       <PortalHost />
-    </ThemeProvider>
+    </>
   );
 }

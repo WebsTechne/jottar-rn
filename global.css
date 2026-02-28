@@ -81,4 +81,14 @@
     --chart-4: 264 71% 42%;
     --chart-5: 266 61% 38%;
   }
+
+  text {
+    @apply font-sans;
+  }
+}
+
+@utility {
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
 }
