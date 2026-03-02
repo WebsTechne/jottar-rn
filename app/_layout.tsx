@@ -1,6 +1,3 @@
-import * as Font from "expo-font";
-import { useEffect, useState } from "react";
-import { View, Text } from "react-native";
 import { Slot } from "expo-router";
 import {
   useFonts,
@@ -11,9 +8,11 @@ import {
   Raleway_800ExtraBold,
 } from "@expo-google-fonts/raleway";
 import { PortalHost } from "@rn-primitives/portal";
-export default function App() {
-  // const [loaded, setLoaded] = useState(false);
+import { ThemeProvider } from "@react-navigation/native";
+import { useColorScheme } from "nativewind";
+import { NAV_THEME } from "@/lib/theme";
 
+export default function App() {
   const [fontsLoaded] = useFonts({
     Raleway_400Regular,
     Raleway_500Medium,
@@ -22,12 +21,12 @@ export default function App() {
     Raleway_800ExtraBold,
   });
 
-  if (!fontsLoaded) return null;
+  const { colorScheme: theme } = useColorScheme();
 
   return (
-    <>
-      <Slot />
+    <ThemeProvider value={NAV_THEME[theme ?? "light"]}>
+      {fontsLoaded ? <Slot /> : null}
       <PortalHost />
-    </>
+    </ThemeProvider>
   );
 }

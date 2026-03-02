@@ -52,11 +52,18 @@ module.exports = {
         hairline: hairlineWidth(),
       },
       fontFamily: {
-        sans: ["Raleway_400Regular"],
-        medium: ["Raleway_500Medium"],
-        semibold: ["Raleway_600SemiBold"],
-        bold: ["Raleway_700Bold"],
-        extrabold: ["Raleway_800ExtraBold"],
+        sans: "Raleway_400Regular",
+        medium: "Raleway_500Medium",
+        semibold: "Raleway_600SemiBold",
+        bold: "Raleway_700Bold",
+        extrabold: "Raleway_800ExtraBold",
+      },
+      fontWeight: {
+        normal: undefined,
+        medium: undefined,
+        semibold: undefined,
+        bold: undefined,
+        extrabold: undefined,
       },
       keyframes: {
         "accordion-down": {

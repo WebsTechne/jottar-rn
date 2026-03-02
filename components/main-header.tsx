@@ -6,15 +6,14 @@ import { THEME } from "@/lib/theme";
 
 export function Header({ title }: { title: string }) {
   const { colorScheme: theme } = useColorScheme();
+  const currentTheme = THEME[theme ?? "light"];
 
   return (
     <Stack.Screen
       options={{
         title: "",
         headerBlurEffect: theme === "dark" ? "dark" : "light",
-        headerStyle: {
-          backgroundColor: theme === "light" ? THEME.light.background : THEME.dark.background,
-        },
+        headerStyle: { backgroundColor: currentTheme.background },
         headerTitle: () => <HeaderTitle title={title} />,
         headerTitleAlign: "left",
         headerRight: () => <ThemeToggle />,

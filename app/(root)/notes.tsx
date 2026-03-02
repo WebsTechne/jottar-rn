@@ -6,7 +6,6 @@ import { StarIcon } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import * as React from "react";
 import { Image, type ImageStyle, View } from "react-native";
-import { Header } from "@/components/main-header";
 
 const LOGO = {
   light: require("@/assets/images/react-native-reusables-light.png"),
@@ -23,7 +22,6 @@ export default function Screen() {
 
   return (
     <>
-      <Header title="Notes" />
       <View className="flex-1 items-center justify-center gap-8 p-4">
         <Image source={LOGO[theme ?? "light"]} style={IMAGE_STYLE} resizeMode="contain" />
         <View className="gap-2 p-4">
