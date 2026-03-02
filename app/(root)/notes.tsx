@@ -1,51 +1,90 @@
-import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
-import { Text } from "@/components/ui/text";
-import { Link } from "expo-router";
-import { StarIcon } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
-import * as React from "react";
-import { Image, type ImageStyle, View } from "react-native";
-
-const LOGO = {
-  light: require("@/assets/images/react-native-reusables-light.png"),
-  dark: require("@/assets/images/react-native-reusables-dark.png"),
-};
-
-const IMAGE_STYLE: ImageStyle = {
-  height: 76,
-  width: 76,
-};
+import { useEffect, useMemo, useState } from "react";
+import { RefreshControl, ScrollView } from "react-native";
+import { NoteCard, NoteCardSkeleton } from "@/components/notes/note-card";
+import { Section, SectionBody, SectionTitle } from "@/components/block/section";
+import { Note } from "@/types/notes";
+import { getNotes } from "@/api/notes";
+import { THEME } from "@/lib/theme";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { getDropdownFolders } from "@/api/folders";
+import { FolderDropdownItem } from "@/types/folders";
 
 export default function Screen() {
   const { colorScheme: theme } = useColorScheme();
+  const currentTheme = THEME[theme ?? "light"];
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [foldersDropdown, setFoldersDropdown] = useState<FolderDropdownItem[]>([]);
+
+  const fetchNotes = async (showLoader: boolean = false) => {
+    if (showLoader) setRefreshing(true);
+    try {
+      const result = await getNotes();
+      setNotes(result);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      if (showLoader) setRefreshing(false);
+    }
+  };
+  const fetchDropdownFolders = async () => {
+    try {
+      const result = await getDropdownFolders();
+      setFoldersDropdown(result);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotes(false);
+    fetchDropdownFolders();
+  }, []);
+
+  const orderedNotes = useMemo(() => {
+    const result = notes.filter((n) => !n.archived && n.trashedAt == null);
+    return [
+      ...result
+        .filter((n) => n.isPinned)
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
+      ...result
+        .filter((n) => !n.isPinned)
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
+    ];
+  }, [notes]);
 
   return (
     <>
-      <View className="flex-1 items-center justify-center gap-8 p-4">
-        <Image source={LOGO[theme ?? "light"]} style={IMAGE_STYLE} resizeMode="contain" />
-        <View className="gap-2 p-4">
-          <Text className="ios:text-foreground font-mono text-sm text-muted-foreground">
-            1. Edit <Text variant="code">app/index.tsx</Text> to get started.
-          </Text>
-          <Text className="ios:text-foreground font-mono text-sm text-muted-foreground">
-            2. Save to see your changes instantly.
-          </Text>
-        </View>
-        <View className="flex-row gap-2">
-          <Link href="https://reactnativereusables.com" asChild>
-            <Button>
-              <Text>Browse the Docs</Text>
-            </Button>
-          </Link>
-          <Link href="https://github.com/founded-labs/react-native-reusables" asChild>
-            <Button variant="ghost">
-              <Text>Star the Repo</Text>
-              <Icon as={StarIcon} />
-            </Button>
-          </Link>
-        </View>
-      </View>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={() => fetchNotes(true)} />
+        }>
+        <Section>
+          <SectionTitle>Notes</SectionTitle>
+          <SectionBody>
+            {refreshing ? (
+              <>
+                <NoteCardSkeleton />
+                <NoteCardSkeleton />
+                <NoteCardSkeleton />
+              </>
+            ) : orderedNotes.length > 0 ? (
+              orderedNotes.map((note) => (
+                <NoteCard key={note.id} note={note} view="active" folders={foldersDropdown} />
+              ))
+            ) : (
+              <>
+                <NoteCardSkeleton />
+                <NoteCardSkeleton />
+                <NoteCardSkeleton />
+              </>
+            )}
+          </SectionBody>
+        </Section>
+      </ScrollView>
     </>
   );
 }

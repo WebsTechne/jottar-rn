@@ -6,10 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 
-export const unstable_settings = {
-  tabBarButton: () => null, // hides the tab button
-};
-
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");

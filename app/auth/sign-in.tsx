@@ -14,10 +14,6 @@ import { HugeiconsIcon } from "@hugeicons/react-native";
 import { ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons";
 import { FormError } from "@/components/block/form-error";
 
-export const unstable_settings = {
-  tabBarButton: () => null, // hides the tab button
-};
-
 type SignInErrors = {
   email?: string;
   password?: string;

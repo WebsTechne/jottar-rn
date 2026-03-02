@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Pressable, Modal, TouchableOpacity, ScrollView, Alert } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { View } from "react-native";
+import { Link } from "expo-router";
 
 import {
   Archive03Icon,
@@ -21,16 +21,36 @@ import { type Note } from "@/types/notes";
 import { type FolderDropdownItem } from "@/types/folders";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "../ui/skeleton";
-import { Card } from "../ui/card";
 import { formatDateTime } from "@/lib/helpers/format-date-time";
 import { extractTextFromDoc } from "@/lib/helpers/extract-text";
-import { duplicateNote, restoreNote, trashNote, updateNoteFolder } from "@/api/notes";
+import {
+  duplicateNote,
+  restoreNote,
+  toggleNoteArchived,
+  toggleNoteFavorited,
+  toggleNotePinned,
+  trashNote,
+  updateNoteFolder,
+} from "@/api/notes";
 import { showToast } from "@/lib/helpers/show-toast";
-import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
+  ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "../ui/context-menu";
 import { useOverlay } from "../overlay";
 import { Text } from "../ui/text";
 import { useColorScheme } from "nativewind";
 import { THEME } from "@/lib/theme";
+import { buttonVariants } from "../ui/button";
 
 type Props = {
   note: Note;
@@ -46,12 +66,18 @@ function NoteCard({ note, folders, onPatch, view }: Props) {
   const currentTheme = THEME[colorScheme ?? "light"];
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const handleDeleteDialogChange = (value: boolean) => {
+    setDeleteDialogOpen(value);
+  };
+
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const handleDetailsDialogChange = (value: boolean) => {
+    setDetailsDialogOpen(value);
+  };
+
   const [localNote, setLocalNote] = useState<Note>(note);
   const [inFlight, setInFlight] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const router = useRouter();
 
   useEffect(() => {
     setLocalNote(note);
@@ -201,7 +227,7 @@ function NoteCard({ note, folders, onPatch, view }: Props) {
 
   const optimisticToggle = async (
     key: "isPinned" | "favorite" | "archived" | "folderId",
-    actionFn: (id: string) => Promise<any>,
+    actionFn: (id: string, action?: string) => Promise<any>,
     { force = false, showUndo = false } = {}
   ) => {
     const id = localNote.id;
@@ -210,7 +236,20 @@ function NoteCard({ note, folders, onPatch, view }: Props) {
     const prev = { ...localNote };
     setLocalNote((s) => ({ ...s, [key]: !s[key] }) as any);
     try {
-      const res = await actionFn(id);
+      let res;
+      switch (actionFn) {
+        case toggleNotePinned:
+          res = await actionFn(id, localNote.isPinned ? "unpin" : "pin");
+          break;
+        case toggleNoteFavorited:
+          res = await actionFn(id, localNote.favorite ? "unfavorite" : "favorite");
+          break;
+        case toggleNoteArchived:
+          res = await actionFn(id, localNote.archived ? "unarchive" : "archive");
+          break;
+        default:
+          res = await actionFn(id);
+      }
       if (res?.error) {
         setLocalNote(prev);
         showToast(res.error);
@@ -236,7 +275,7 @@ function NoteCard({ note, folders, onPatch, view }: Props) {
 
   return (
     <>
-      <ContextMenu open={isOpen} onOpenChange={(v) => (v ? open(owner) : close())}>
+      <ContextMenu open={true} onOpenChange={(v) => (v ? open(owner) : close())}>
         <ContextMenuTrigger asChild>
           <View
             className={cn(
@@ -270,15 +309,161 @@ function NoteCard({ note, folders, onPatch, view }: Props) {
               <Text className="line-clamp-2 text-sm text-muted-foreground">{preview}</Text>
             </View>
 
-            <View className="flex-row items-center justify-end gap-2 font-mono">
-              <Text className="text-xs text-muted-foreground">{date}</Text>
-              <Text className="text-xs text-muted-foreground">{time}</Text>
+            <View className="flex-row items-center justify-end gap-2">
+              <Text className="font-mono text-xs text-muted-foreground">{date}</Text>
+              <Text className="font-mono text-xs text-muted-foreground">{time}</Text>
             </View>
 
             {/* absolute clickable layer */}
             <Link href={`/notes/${localNote.id}`} className="absolute inset-0 z-10" />
           </View>
         </ContextMenuTrigger>
+
+        <ContextMenuContent className="!min-w-52">
+          {!localNote.archived && !localNote.trashedAt && (
+            <>
+              <ContextMenuGroup>
+                {view === "active" && (
+                  <ContextMenuItem onPress={() => optimisticToggle("isPinned", toggleNotePinned)}>
+                    {localNote.isPinned ? (
+                      <>
+                        <HugeiconsIcon icon={PinOffIcon} strokeWidth={2} />
+                        Unpin note
+                      </>
+                    ) : (
+                      <>
+                        <HugeiconsIcon icon={PinIcon} strokeWidth={2} />
+                        Pin note
+                      </>
+                    )}
+                  </ContextMenuItem>
+                )}
+
+                <ContextMenuItem onPress={() => optimisticToggle("favorite", toggleNoteFavorited)}>
+                  {localNote.favorite ? (
+                    <>
+                      <HugeiconsIcon icon={StarIcon} fill="currentColor" strokeWidth={2} />
+                      Remove from favorites
+                    </>
+                  ) : (
+                    <>
+                      <HugeiconsIcon icon={StarIcon} strokeWidth={2} />
+                      Add to favorites
+                    </>
+                  )}
+                </ContextMenuItem>
+              </ContextMenuGroup>
+
+              <ContextMenuSeparator />
+            </>
+          )}
+
+          {!localNote.trashedAt && (
+            <>
+              <ContextMenuItem
+                onPress={() =>
+                  optimisticToggle("archived", toggleNoteArchived, {
+                    showUndo: true,
+                  })
+                }>
+                {localNote.archived ? (
+                  <>
+                    <HugeiconsIcon icon={ArchiveOff03Icon} strokeWidth={2} />
+                    Unarchive note
+                  </>
+                ) : (
+                  <>
+                    <HugeiconsIcon icon={Archive03Icon} strokeWidth={2} />
+                    Archive note
+                  </>
+                )}
+              </ContextMenuItem>
+
+              <ContextMenuSeparator />
+            </>
+          )}
+
+          {!localNote.trashedAt && (
+            <>
+              <ContextMenuItem onPress={() => handleDuplicateNote(localNote.id)}>
+                <HugeiconsIcon icon={Copy01Icon} strokeWidth={2} />
+                Duplicate note
+              </ContextMenuItem>
+
+              <ContextMenuSub>
+                <ContextMenuSubTrigger>
+                  <HugeiconsIcon icon={Folder02Icon} strokeWidth={2} />
+                  Move to folder
+                </ContextMenuSubTrigger>
+                <ContextMenuSubContent>
+                  <ContextMenuGroup>
+                    <ContextMenuItem asChild>
+                      <Link
+                        href="/folders/new"
+                        className={cn(
+                          buttonVariants({ variant: "outline" }),
+                          "justify-start! w-full"
+                        )}>
+                        <HugeiconsIcon icon={FolderAddIcon} strokeWidth={2} />
+                        New folder
+                      </Link>
+                    </ContextMenuItem>
+
+                    {usableFolders.length > 0 && <ContextMenuSeparator />}
+
+                    <ContextMenuRadioGroup
+                      value={localNote.folderId ?? "none"}
+                      onValueChange={handleFolderChange}>
+                      <ContextMenuRadioItem value="none">None</ContextMenuRadioItem>
+                      {usableFolders.map((folder) => (
+                        <ContextMenuRadioItem key={folder.id} value={folder.id}>
+                          {folder.name}
+                        </ContextMenuRadioItem>
+                      ))}
+                    </ContextMenuRadioGroup>
+                  </ContextMenuGroup>
+                </ContextMenuSubContent>
+              </ContextMenuSub>
+
+              <ContextMenuSeparator />
+            </>
+          )}
+
+          {!localNote.archived && !localNote.trashedAt && (
+            <ContextMenuItem onPress={() => showToast("This feature isn't available yet")}>
+              <HugeiconsIcon icon={Share01Icon} strokeWidth={2} />
+              Share note
+            </ContextMenuItem>
+          )}
+
+          <ContextMenuItem onPress={() => handleDetailsDialogChange(true)}>
+            <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} />
+            Details
+          </ContextMenuItem>
+
+          <ContextMenuSeparator />
+
+          {localNote.trashedAt && (
+            <ContextMenuItem onPress={() => handleRestore(localNote.id)}>
+              <HugeiconsIcon icon={ReloadIcon} strokeWidth={2} />
+              Restore from trash
+            </ContextMenuItem>
+          )}
+
+          {!localNote.trashedAt ? (
+            <ContextMenuItem variant="destructive" onPress={() => handleDeleteDialogChange(true)}>
+              <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+              Trash
+            </ContextMenuItem>
+          ) : (
+            <ContextMenuItem
+              variant="destructive"
+              onPress={() => showToast("This feature isn't available yet")}>
+              <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+              Delete permanently
+            </ContextMenuItem>
+          )}
+        </ContextMenuContent>
       </ContextMenu>
     </>
   );

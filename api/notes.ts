@@ -99,6 +99,89 @@ const restoreNote = async (noteId: string) => {
   }
 };
 
+const toggleNotePinned = async (noteId: string, action?: string) => {
+  try {
+    const cookies = authClient.getCookie();
+    const headers = { Cookie: cookies };
+
+    const res = await fetch(`${API_URL}/notes/${noteId}/toggle-pin`, {
+      method: "POST",
+      headers,
+      credentials: "omit",
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      showToast(errorData.message || `Failed to ${action} note`);
+      return null;
+    }
+
+    const result = await res.json();
+    return result.data; // pinned/unpinned note object
+  } catch (err: any) {
+    console.error(`Error ${action}ning note:`, err);
+    showToast(err?.message ?? `Network error while ${action}ning note`);
+    return null;
+  }
+};
+
+const toggleNoteFavorited = async (noteId: string, action?: string) => {
+  try {
+    const cookies = authClient.getCookie();
+    const headers = { Cookie: cookies };
+
+    const res = await fetch(`${API_URL}/notes/${noteId}/toggle-favorite`, {
+      method: "POST",
+      headers,
+      credentials: "omit",
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      showToast(errorData.message || `Failed to ${action} note`);
+      return null;
+    }
+
+    const result = await res.json();
+    return result.data; // favorited/unfavorited note object
+  } catch (err: any) {
+    console.error(`Error ${action}ing note:`, err);
+    showToast(
+      err?.message ??
+        `Network error while ${action === "favorite" ? "favoriting" : "unfavoriting"} note`
+    );
+    return null;
+  }
+};
+const toggleNoteArchived = async (noteId: string, action?: string) => {
+  try {
+    const cookies = authClient.getCookie();
+    const headers = { Cookie: cookies };
+
+    const res = await fetch(`${API_URL}/notes/${noteId}/toggle-archive`, {
+      method: "POST",
+      headers,
+      credentials: "omit",
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      showToast(errorData.message || `Failed to ${action} note`);
+      return null;
+    }
+
+    const result = await res.json();
+    return result.data; // archived/unarchived note object
+  } catch (err: any) {
+    console.error(`Error ${action}ing note:`, err);
+    showToast(
+      err?.message ??
+        `Network error while ${action === "archive" ? "archiving" : "unarchiving"} note`
+    );
+    return null;
+  }
+};
+
 const updateNoteFolder = async (noteId: string, folderId: string | null) => {
   try {
     const cookies = authClient.getCookie();
@@ -158,6 +241,9 @@ export {
   getOverviewNotes,
   duplicateNote,
   //
+  toggleNotePinned,
+  toggleNoteFavorited,
+  toggleNoteArchived,
   updateNoteFolder,
   //
   trashNote,

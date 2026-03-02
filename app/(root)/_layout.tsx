@@ -8,7 +8,7 @@ import getInitials from "@/lib/helpers/initials";
 import getDisplayTitle from "@/lib/helpers/get-display-title";
 
 import { NAV_THEME } from "@/lib/theme";
-import { Folder02Icon, Home03Icon, Note01Icon } from "@hugeicons/core-free-icons";
+import { Folder02Icon, Home09Icon, Note01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { Redirect, Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -59,7 +59,13 @@ export default function RootLayout() {
           options={{
             tabBarLabel: "Home",
             tabBarIcon: ({ color, size }) => (
-              <HugeiconsIcon icon={Home03Icon} color={color} size={size} strokeWidth={1.7} />
+              <HugeiconsIcon
+                icon={Home09Icon}
+                color={color}
+                size={size}
+                strokeWidth={1.5}
+                fill={pathname === "/" ? color : "transparent"}
+              />
             ),
           }}
         />
@@ -68,7 +74,12 @@ export default function RootLayout() {
           options={{
             tabBarLabel: "Notes",
             tabBarIcon: ({ color, size }) => (
-              <HugeiconsIcon icon={Note01Icon} color={color} size={size} strokeWidth={1.7} />
+              <HugeiconsIcon
+                icon={Note01Icon}
+                color={color}
+                size={size}
+                strokeWidth={pathname === "/notes" || pathname.startsWith("/notes") ? 2.1 : 1.5}
+              />
             ),
           }}
         />
@@ -77,7 +88,12 @@ export default function RootLayout() {
           options={{
             tabBarLabel: "Folders",
             tabBarIcon: ({ color, size }) => (
-              <HugeiconsIcon icon={Folder02Icon} color={color} size={size} strokeWidth={1.7} />
+              <HugeiconsIcon
+                icon={Folder02Icon}
+                color={color}
+                size={size}
+                strokeWidth={pathname === "/folders" || pathname.startsWith("/folders") ? 2.1 : 1.5}
+              />
             ),
           }}
         />
@@ -86,7 +102,11 @@ export default function RootLayout() {
           options={{
             tabBarLabel: "Tags",
             tabBarIcon: ({ color, size }) => (
-              <TagsIcon color={color} size={size} strokeWidth={1.7} />
+              <TagsIcon
+                color={color}
+                size={size}
+                strokeWidth={pathname === "/tags" || pathname.startsWith("/tags") ? 2.1 : 1.5}
+              />
             ),
           }}
         />
@@ -95,8 +115,22 @@ export default function RootLayout() {
           options={{
             tabBarLabel: "You",
             tabBarIcon: ({ color, size }) => (
-              // <HugeiconsIcon icon={Setting07Icon} color={color} size={size} strokeWidth={1.7} />
-              <Avatar style={{ width: size, height: size }} alt={`${name}'s Avatar`}>
+              // <HugeiconsIcon icon={Setting07Icon} color={color} size={size} strokeWidth={1.5} />
+              <Avatar
+                style={{
+                  width: size,
+                  height: size,
+                  borderColor:
+                    pathname === "/settings" || pathname.startsWith("/settings")
+                      ? color
+                      : "transparent",
+                }}
+                alt={`${name}'s Avatar`}
+                className={
+                  pathname === "/settings" || pathname.startsWith("/settings")
+                    ? "border-[2.1px]"
+                    : "border-0"
+                }>
                 <AvatarImage source={{ uri: image || "" }} />
                 <AvatarFallback>
                   <Text>{initials}</Text>
