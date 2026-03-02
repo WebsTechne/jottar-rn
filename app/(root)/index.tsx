@@ -4,7 +4,7 @@ import { Link } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
 import { type ImageStyle, View, ScrollView, FlatList } from "react-native";
-import { NoteCardSkeleton } from "@/components/notes/note-card";
+import { NoteCard, NoteCardSkeleton } from "@/components/notes/note-card";
 import { Section, SectionBody, SectionTitle } from "@/components/block/section";
 import { Note } from "@/types/notes";
 import { getNotes, getOverviewNotes } from "@/api/notes";
@@ -14,6 +14,8 @@ import { GoBackward15SecFreeIcons } from "@hugeicons/core-free-icons";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "expo-router";
 import { usePathname } from "expo-router";
+import { FolderDropdownItem, FolderOverview } from "@/types/folders";
+import { getDropdownFolders, getOverviewFolders } from "@/api/folders";
 
 const LOGO = {
   light: require("@/assets/images/react-native-reusables-light.png"),
@@ -49,18 +51,38 @@ export default function Screen() {
   const currentTheme = THEME[theme ?? "light"];
 
   const [notes, setNotes] = useState<Note[]>([]);
+  const [foldersDropdown, setFoldersDropdown] = useState<FolderDropdownItem[]>([]);
+  const [folders, setFolders] = useState<FolderOverview[]>([]);
 
   useEffect(() => {
     const fetchOverviewNotes = async () => {
       try {
-        const result = await getNotes();
-        console.log(result);
+        const result = await getOverviewNotes();
         setNotes(result);
       } catch (err) {
         console.error(err);
       }
     };
+    const fetchDropdownFolders = async () => {
+      try {
+        const result = await getDropdownFolders();
+        setFoldersDropdown(result);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    const fetchOverviewFolders = async () => {
+      try {
+        const result = await getOverviewFolders();
+        setFolders(result);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
     fetchOverviewNotes();
+    fetchDropdownFolders();
+    fetchOverviewFolders();
   }, []);
 
   const { data: session } = authClient.useSession();
@@ -76,18 +98,17 @@ export default function Screen() {
         <Section>
           <SectionTitle>{session ? session.user.name : "Notes"}</SectionTitle>
           <SectionBody>
-            <FlatList
-              data={notes}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <View className="flex-row gap-2">
-                  <HugeiconsIcon icon={GoBackward15SecFreeIcons} className="text-foreground" />
-                  <Text className="text-foreground">{item.title}</Text>
-                </View>
-              )}></FlatList>
-            {notes.length < 1 && <Text>No notes yet.</Text>}
-
-            <NoteCardSkeleton />
+            {notes.length > 0 ? (
+              notes.map((note) => (
+                // <View key={note.id} className="flex-row gap-2">
+                //   <HugeiconsIcon icon={GoBackward15SecFreeIcons} className="text-foreground" />
+                //   <Text className="text-foreground">{note.title}</Text>
+                // </View>
+                <NoteCard key={note.id} note={note} view="active" folders={[]} />
+              ))
+            ) : (
+              <NoteCardSkeleton />
+            )}
           </SectionBody>
         </Section>
 

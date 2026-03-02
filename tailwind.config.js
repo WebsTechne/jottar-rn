@@ -29,6 +29,7 @@ module.exports = {
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
+          foreground51: "hsl(var(--muted-foreground-51))",
         },
         accent: {
           DEFAULT: "hsl(var(--accent))",
@@ -53,6 +54,8 @@ module.exports = {
       },
       fontFamily: {
         sans: "Raleway_400Regular",
+        mono: "GeistMono_400Regular",
+        monoBold: "GeistMono_700Bold",
         medium: "Raleway_500Medium",
         semibold: "Raleway_600SemiBold",
         bold: "Raleway_700Bold",

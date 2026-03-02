@@ -6,7 +6,8 @@
       "name": "jottar-rn",
       "dependencies": {
         "@better-auth/expo": "^1.4.20",
-        "@expo-google-fonts/raleway": "0.4.2",
+        "@expo-google-fonts/geist-mono": "^0.4.1",
+        "@expo-google-fonts/raleway": "^0.4.2",
         "@hugeicons/core-free-icons": "^3.3.0",
         "@hugeicons/react-native": "^1.0.11",
         "@react-navigation/native": "^7.0.0",
@@ -256,6 +257,8 @@
     "@better-auth/utils": ["@better-auth/utils@0.3.0", "", {}, "sha512-W+Adw6ZA6mgvnSnhOki270rwJ42t4XzSK6YWGF//BbVXL6SwCLWfyzBc1lN2m/4RM28KubdBKQ4X5VMoLRNPQw=="],
 
     "@better-fetch/fetch": ["@better-fetch/fetch@1.1.21", "", {}, "sha512-/ImESw0sskqlVR94jB+5+Pxjf+xBwDZF/N5+y2/q4EqD7IARUTSpPfIo8uf39SYpCxyOCtbyYpUrZ3F/k0zT4A=="],
+
+    "@expo-google-fonts/geist-mono": ["@expo-google-fonts/geist-mono@0.4.1", "", {}, "sha512-4amQyslc5Qsr06CymJA7PzUaJd0ohlbpY7sWqRfZkwPp9xeVzy9JBLg05VwO3bx+M4CY+FV4AAIG/8fGRCXguw=="],
 
     "@expo-google-fonts/raleway": ["@expo-google-fonts/raleway@0.4.2", "", {}, "sha512-EFHYXFx9/M+6kGt/T2/y2Aqo30SosZUp4d8Dd7aLumhacrwlcRL6GYMqwIYQpLbR0xh5Vn4/APH5N72tEkoKRA=="],
 
