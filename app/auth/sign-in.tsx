@@ -23,7 +23,7 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [hidePassword, setHidePassword] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<SignInErrors>({});
 
   const { colorScheme: theme } = useColorScheme();
@@ -58,7 +58,7 @@ export default function SignIn() {
   const handleLogin = async () => {
     if (!validateForm()) return;
 
-    setLoading(true);
+    setIsSubmitting(true);
 
     try {
       const res = await authClient.signIn.email(
@@ -83,13 +83,13 @@ export default function SignIn() {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
     <>
-      <View className="gap-5">
+      <View className="gap-5 bg-background p-6 pt-7">
         <AuthMessage title="Welcome back" message="Sign in with your email and password" />
         <View className="gap-[18px]">
           <View className="gap-1.5">
@@ -105,7 +105,7 @@ export default function SignIn() {
               autoCorrect={false}
               autoComplete="email"
               // autoFocus
-              editable={!loading}
+              editable={!isSubmitting}
               inputMode="email"
               returnKeyType="next"
               returnKeyLabel="Next"
@@ -131,7 +131,7 @@ export default function SignIn() {
                 textContentType="password"
                 secureTextEntry={hidePassword}
                 autoComplete="current-password"
-                editable={!loading}
+                editable={!isSubmitting}
                 returnKeyType="done"
                 returnKeyLabel="Go"
                 onSubmitEditing={handleLogin}
@@ -148,7 +148,7 @@ export default function SignIn() {
                 size="icon"
                 accessibilityLabel="Toggle password visibility"
                 className="absolute right-1 top-1/2 size-8 -translate-y-1/2"
-                onPress={() => setHidePassword((p) => !p)}>
+                onPress={() => setHidePassword((v) => !v)}>
                 <HugeiconsIcon
                   icon={hidePassword ? ViewIcon : ViewOffIcon}
                   className="size-5 text-muted-foreground"
@@ -158,8 +158,8 @@ export default function SignIn() {
             {errors.password && <FormError errors={errors.password} />}
           </View>
 
-          <Button onPress={handleLogin} disabled={loading} className="w-full">
-            {loading ? (
+          <Button onPress={handleLogin} disabled={isSubmitting} className="w-full">
+            {isSubmitting ? (
               <>
                 <ActivityIndicator size="small" color={currentTheme.primaryForeground} />
                 <Text className="font-medium">Signing in</Text>

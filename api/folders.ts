@@ -1,69 +1,55 @@
 import { authClient } from "@/lib/auth-client";
 import { showToast } from "@/lib/helpers/show-toast";
 import { FolderDropdownItem, FolderListItem, FolderOverview } from "@/types/folders";
+import { safeJson } from "./notes";
 
 const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}/api`;
 
 // ----- Folder functions -----
 export const getFolders = async (): Promise<FolderListItem[]> => {
-  try {
-    const cookies = authClient.getCookie();
-    const headers = { Cookie: cookies };
+  const cookies = authClient.getCookie();
+  const headers = { Cookie: cookies };
 
-    const res = await fetch(`${API_URL}/folders`, { headers, credentials: "omit" });
+  const res = await fetch(`${API_URL}/folders`, { headers, credentials: "omit" });
 
-    if (!res.ok) {
-      const err = await res.json();
-      showToast(err?.message || "Failed to fetch folders");
-      return [];
-    }
-
-    const json = await res.json();
-    return json.data;
-  } catch (err: any) {
-    showToast(err?.message ?? "Network error while fetching folders");
-    return [];
+  if (!res.ok) {
+    const err = await safeJson(res);
+    showToast(err?.message || "Failed to fetch folders");
+    throw new Error(err?.message || "Failed to fetch folders");
   }
+
+  const json = await res.json();
+  return json.data;
 };
 
 export const getOverviewFolders = async (): Promise<FolderOverview[]> => {
-  try {
-    const cookies = authClient.getCookie();
-    const headers = { Cookie: cookies };
+  const cookies = authClient.getCookie();
+  const headers = { Cookie: cookies };
 
-    const res = await fetch(`${API_URL}/folders?mode=overview`, { headers, credentials: "omit" });
+  const res = await fetch(`${API_URL}/folders?mode=overview`, { headers, credentials: "omit" });
 
-    if (!res.ok) {
-      const err = await res.json();
-      showToast(err?.message || "Failed to fetch overview folders");
-      return [];
-    }
-
-    const json = await res.json();
-    return json.data;
-  } catch (err: any) {
-    showToast(err?.message ?? "Network error while fetching overview folders");
-    return [];
+  if (!res.ok) {
+    const err = await safeJson(res);
+    showToast(err?.message || "Failed to load overview");
+    throw new Error(err?.message || "Failed to load overview");
   }
+
+  const json = await res.json();
+  return json.data;
 };
 
 export const getDropdownFolders = async (): Promise<FolderDropdownItem[]> => {
-  try {
-    const cookies = authClient.getCookie();
-    const headers = { Cookie: cookies };
+  const cookies = authClient.getCookie();
+  const headers = { Cookie: cookies };
 
-    const res = await fetch(`${API_URL}/folders?mode=dropdown`, { headers, credentials: "omit" });
+  const res = await fetch(`${API_URL}/folders?mode=dropdown`, { headers, credentials: "omit" });
 
-    if (!res.ok) {
-      const err = await res.json();
-      showToast(err?.message || "Failed to fetch dropdown folders");
-      return [];
-    }
-
-    const json = await res.json();
-    return json.data;
-  } catch (err: any) {
-    showToast(err?.message ?? "Network error while fetching dropdown folders");
-    return [];
+  if (!res.ok) {
+    const err = await safeJson(res);
+    showToast(err?.message || "Failed to fetch folders");
+    throw new Error(err?.message || "Failed to fetch folders");
   }
+
+  const json = await res.json();
+  return json.data;
 };

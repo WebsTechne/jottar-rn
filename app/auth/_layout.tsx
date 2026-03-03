@@ -23,12 +23,12 @@ export default function AuthLayout() {
     <>
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
 
-      <View className="flex-1 bg-background p-6 pt-7">
+      <View className="flex-1 bg-background pt-7">
         <Stack
           screenOptions={{
-            contentStyle: { backgroundColor: "transparent" },
+            // contentStyle: { backgroundColor: "transparent" },
             header: () => (
-              <View className="mb-6 h-14 flex-row items-center justify-between bg-background">
+              <View className="mb-6 h-14 flex-row items-center justify-between bg-background px-6">
                 <View className="flex-row items-center">
                   <HugeiconsIcon
                     icon={QuillWrite01Icon}

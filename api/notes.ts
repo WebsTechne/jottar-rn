@@ -4,46 +4,44 @@ import { Note } from "@/types/notes";
 
 const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}/api`;
 
-// ----- Get functions -----
-const getNotes = async (): Promise<Note[]> => {
+const safeJson = async (res: Response) => {
   try {
-    const cookies = authClient.getCookie();
-    const headers = { Cookie: cookies };
-
-    const res = await fetch(`${API_URL}/notes`, { headers, credentials: "omit" });
-
-    if (!res.ok) {
-      const err = await res.json();
-      showToast(err?.message || "Failed to fetch notes");
-      return [];
-    }
-
-    const json = await res.json();
-    return json.data;
-  } catch (err: any) {
-    showToast(err?.message ?? "Network error while fetching notes");
-    return [];
+    return await res.json();
+  } catch {
+    return null;
   }
 };
-const getOverviewNotes = async (): Promise<Note[]> => {
-  try {
-    const cookies = authClient.getCookie();
-    const headers = { Cookie: cookies };
 
-    const res = await fetch(`${API_URL}/notes?mode=overview`, { headers, credentials: "omit" });
+// ----- Get functions -----
+const getNotes = async (): Promise<Note[]> => {
+  const cookies = authClient.getCookie();
+  const headers = { Cookie: cookies };
 
-    if (!res.ok) {
-      const err = await res.json();
-      showToast(err?.message || "Failed to fetch notes");
-      return [];
-    }
+  const res = await fetch(`${API_URL}/notes`, { headers, credentials: "omit" });
 
-    const json = await res.json();
-    return json.data;
-  } catch (err: any) {
-    showToast(err?.message ?? "Network error while fetching notes");
-    return [];
+  if (!res.ok) {
+    const err = await safeJson(res);
+    showToast(err?.message || "Failed to fetch notes");
+    throw new Error(err?.message || "Failed to fetch notes");
   }
+
+  const json = await res.json();
+  return json.data;
+};
+const getOverviewNotes = async (): Promise<Note[]> => {
+  const cookies = authClient.getCookie();
+  const headers = { Cookie: cookies };
+
+  const res = await fetch(`${API_URL}/notes?mode=overview`, { headers, credentials: "omit" });
+
+  if (!res.ok) {
+    const err = await safeJson(res);
+    showToast(err?.message || "Failed to load overview");
+    throw new Error(err?.message || "Failed to load overview");
+  }
+
+  const json = await res.json();
+  return json.data;
 };
 
 // ----- Edit functions -----
@@ -59,7 +57,7 @@ const trashNote = async (noteId: string) => {
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await safeJson(res);
       showToast(errorData.message || "Failed to trash note");
       return null;
     }
@@ -85,7 +83,7 @@ const restoreNote = async (noteId: string) => {
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await safeJson(res);
       showToast(errorData.message || "Failed to restore note");
       return null;
     }
@@ -111,7 +109,7 @@ const toggleNotePinned = async (noteId: string, action?: string) => {
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await safeJson(res);
       showToast(errorData.message || `Failed to ${action} note`);
       return null;
     }
@@ -137,7 +135,7 @@ const toggleNoteFavorited = async (noteId: string, action?: string) => {
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await safeJson(res);
       showToast(errorData.message || `Failed to ${action} note`);
       return null;
     }
@@ -165,7 +163,7 @@ const toggleNoteArchived = async (noteId: string, action?: string) => {
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await safeJson(res);
       showToast(errorData.message || `Failed to ${action} note`);
       return null;
     }
@@ -195,7 +193,7 @@ const updateNoteFolder = async (noteId: string, folderId: string | null) => {
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await safeJson(res);
       showToast(errorData.message || "Failed to update note folder");
       return null;
     }
@@ -221,7 +219,7 @@ const duplicateNote = async (noteId: string) => {
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await safeJson(res);
       showToast(errorData.message || "Failed to duplicate note");
       return null;
     }
@@ -248,4 +246,6 @@ export {
   //
   trashNote,
   restoreNote,
+  //
+  safeJson,
 };

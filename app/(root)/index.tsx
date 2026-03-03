@@ -1,19 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Link } from "expo-router";
-import { useColorScheme } from "nativewind";
-import { useEffect, useState } from "react";
 import { RefreshControl, ScrollView, View } from "react-native";
 import { NoteCard, NoteCardSkeleton } from "@/components/notes/note-card";
 import { Section, SectionBody, SectionTitle } from "@/components/block/section";
-import { Note } from "@/types/notes";
 import { getOverviewNotes } from "@/api/notes";
-import { THEME } from "@/lib/theme";
-import { HugeiconsIcon } from "@hugeicons/react-native";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "expo-router";
 import { usePathname } from "expo-router";
-import { FolderDropdownItem, FolderOverview } from "@/types/folders";
 import { getDropdownFolders, getOverviewFolders } from "@/api/folders";
 import { showToast } from "@/lib/helpers/show-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -38,9 +32,6 @@ export const handleSignOut = async ({
 };
 
 export default function Screen() {
-  const { colorScheme: theme } = useColorScheme();
-  const currentTheme = THEME[theme ?? "light"];
-
   const { data: session } = authClient.useSession();
 
   const { push } = useRouter();
@@ -57,7 +48,8 @@ export default function Screen() {
     data: notes,
     isFetching: notesPending,
     refetch: refetchNotes,
-  } = useQuery({ queryKey: ["overviewNotes"], queryFn: getOverviewNotes });
+    error: notesError,
+  } = useQuery({ queryKey: ["overviewNotes"], queryFn: getOverviewNotes, retry: 1 });
 
   const {
     data: folders,
@@ -65,8 +57,9 @@ export default function Screen() {
     refetch: refetchFolders,
     error: foldersError,
   } = useQuery({
-    queryKey: ["notes"],
+    queryKey: ["overviewFolders"],
     queryFn: getOverviewFolders,
+    retry: 1,
   });
 
   const refreshing = notesPending || foldersPending;
@@ -87,30 +80,42 @@ export default function Screen() {
         <Section>
           <SectionTitle>Notes</SectionTitle>
           <SectionBody>
-            {notesPending ? (
+            {notesError ? (
+              <View className="h-32 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border">
+                <Text className="text-muted-foreground">Something went wrong</Text>
+                <Button onPress={() => refetchNotes()}>
+                  <Text>Refresh</Text>
+                </Button>
+              </View>
+            ) : notesPending ? (
               <>
                 <NoteCardSkeleton />
                 <NoteCardSkeleton />
                 <NoteCardSkeleton />
               </>
-            ) : (notes ?? []).length > 0 ? (
+            ) : !notesError && (notes ?? []).length > 0 ? (
               (notes ?? []).map((note) => (
                 <NoteCard key={note.id} note={note} view="active" folders={foldersDropdown ?? []} />
               ))
             ) : (
-              <>
-                <NoteCardSkeleton />
-                <NoteCardSkeleton />
-                <NoteCardSkeleton />
-              </>
+              <View className="h-32 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border">
+                <Text className="text-muted-foreground">You do not have any notes</Text>
+              </View>
             )}
           </SectionBody>
         </Section>
 
         <Section>
           <SectionTitle>Folders</SectionTitle>
-          <SectionBody>
-            {foldersPending ? (
+          <SectionBody variant="flex">
+            {foldersError ? (
+              <View className="h-32 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border">
+                <Text className="text-muted-foreground">Something went wrong</Text>
+                <Button onPress={() => refetchFolders()}>
+                  <Text>Refresh</Text>
+                </Button>
+              </View>
+            ) : foldersPending ? (
               <>
                 <NoteCardSkeleton />
               </>
@@ -121,7 +126,9 @@ export default function Screen() {
                 </View>
               ))
             ) : (
-              <NoteCardSkeleton />
+              <View className="h-32 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border">
+                <Text className="text-muted-foreground">You do not have any folders</Text>
+              </View>
             )}
           </SectionBody>
         </Section>
