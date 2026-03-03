@@ -9,43 +9,28 @@ import { THEME } from "@/lib/theme";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { getDropdownFolders } from "@/api/folders";
 import { FolderDropdownItem } from "@/types/folders";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Screen() {
   const { colorScheme: theme } = useColorScheme();
   const currentTheme = THEME[theme ?? "light"];
 
-  const [refreshing, setRefreshing] = useState(false);
-
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [foldersDropdown, setFoldersDropdown] = useState<FolderDropdownItem[]>([]);
-
-  const fetchNotes = async (showLoader: boolean = false) => {
-    if (showLoader) setRefreshing(true);
-    try {
-      const result = await getNotes();
-      setNotes(result);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      if (showLoader) setRefreshing(false);
-    }
-  };
-  const fetchDropdownFolders = async () => {
-    try {
-      const result = await getDropdownFolders();
-      setFoldersDropdown(result);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    fetchNotes(false);
-    fetchDropdownFolders();
-  }, []);
+  const { data: foldersDropdown } = useQuery({
+    queryKey: ["foldersDropdown"],
+    queryFn: getDropdownFolders,
+  });
+  const {
+    data: fetchedNotes,
+    isFetching: notesPending,
+    refetch: refetchNotes,
+    error: notesError,
+  } = useQuery({
+    queryKey: ["notes"],
+    queryFn: getNotes,
+  });
 
   const orderedNotes = useMemo(() => {
-    const result = notes.filter((n) => !n.archived && n.trashedAt == null);
+    const result = (fetchedNotes ?? []).filter((n) => !n.archived && n.trashedAt == null);
     return [
       ...result
         .filter((n) => n.isPinned)
@@ -54,18 +39,16 @@ export default function Screen() {
         .filter((n) => !n.isPinned)
         .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
     ];
-  }, [notes]);
+  }, [fetchedNotes]);
 
   return (
     <>
       <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => fetchNotes(true)} />
-        }>
+        refreshControl={<RefreshControl refreshing={notesPending} onRefresh={refetchNotes} />}>
         <Section>
           <SectionTitle>Notes</SectionTitle>
           <SectionBody>
-            {refreshing ? (
+            {notesPending ? (
               <>
                 <NoteCardSkeleton />
                 <NoteCardSkeleton />
@@ -73,7 +56,7 @@ export default function Screen() {
               </>
             ) : orderedNotes.length > 0 ? (
               orderedNotes.map((note) => (
-                <NoteCard key={note.id} note={note} view="active" folders={foldersDropdown} />
+                <NoteCard key={note.id} note={note} view="active" folders={foldersDropdown || []} />
               ))
             ) : (
               <>

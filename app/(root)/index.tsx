@@ -16,6 +16,7 @@ import { usePathname } from "expo-router";
 import { FolderDropdownItem, FolderOverview } from "@/types/folders";
 import { getDropdownFolders, getOverviewFolders } from "@/api/folders";
 import { showToast } from "@/lib/helpers/show-toast";
+import { useQuery } from "@tanstack/react-query";
 
 export const handleSignOut = async ({
   returnTo,
@@ -40,54 +41,6 @@ export default function Screen() {
   const { colorScheme: theme } = useColorScheme();
   const currentTheme = THEME[theme ?? "light"];
 
-  const [refreshing, setRefreshing] = useState(false);
-
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [foldersDropdown, setFoldersDropdown] = useState<FolderDropdownItem[]>([]);
-  const [folders, setFolders] = useState<FolderOverview[]>([]);
-
-  const fetchOverviewNotes = async () => {
-    try {
-      const result = await getOverviewNotes();
-      setNotes(result);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  const fetchDropdownFolders = async () => {
-    try {
-      const result = await getDropdownFolders();
-      setFoldersDropdown(result);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  const fetchOverviewFolders = async () => {
-    try {
-      const result = await getOverviewFolders();
-      setFolders(result);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const refreshFetches = async () => {
-    setRefreshing(true);
-    try {
-      await Promise.all([fetchOverviewNotes(), fetchOverviewFolders()]);
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : String(err));
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOverviewNotes();
-    fetchDropdownFolders();
-    fetchOverviewFolders();
-  }, []);
-
   const { data: session } = authClient.useSession();
 
   const { push } = useRouter();
@@ -95,22 +48,54 @@ export default function Screen() {
 
   const returnTo = pathname;
 
+  const { data: foldersDropdown } = useQuery({
+    queryKey: ["foldersDropdown"],
+    queryFn: getDropdownFolders,
+  });
+
+  const {
+    data: notes,
+    isFetching: notesPending,
+    refetch: refetchNotes,
+  } = useQuery({ queryKey: ["overviewNotes"], queryFn: getOverviewNotes });
+
+  const {
+    data: folders,
+    isFetching: foldersPending,
+    refetch: refetchFolders,
+    error: foldersError,
+  } = useQuery({
+    queryKey: ["notes"],
+    queryFn: getOverviewFolders,
+  });
+
+  const refreshing = notesPending || foldersPending;
+
+  const handleRefresh = async () => {
+    try {
+      await Promise.all([refetchNotes(), refetchFolders()]);
+    } catch (err) {
+      showToast("Error fetching data. Please try again.");
+      console.error("Error fetching data: ", err);
+    }
+  };
+
   return (
     <>
       <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshFetches} />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
         <Section>
           <SectionTitle>Notes</SectionTitle>
           <SectionBody>
-            {refreshing ? (
+            {notesPending ? (
               <>
                 <NoteCardSkeleton />
                 <NoteCardSkeleton />
                 <NoteCardSkeleton />
               </>
-            ) : notes.length > 0 ? (
-              notes.map((note) => (
-                <NoteCard key={note.id} note={note} view="active" folders={foldersDropdown} />
+            ) : (notes ?? []).length > 0 ? (
+              (notes ?? []).map((note) => (
+                <NoteCard key={note.id} note={note} view="active" folders={foldersDropdown ?? []} />
               ))
             ) : (
               <>
@@ -125,12 +110,12 @@ export default function Screen() {
         <Section>
           <SectionTitle>Folders</SectionTitle>
           <SectionBody>
-            {refreshing ? (
+            {foldersPending ? (
               <>
                 <NoteCardSkeleton />
               </>
-            ) : folders.length > 0 ? (
-              folders.map((folder) => (
+            ) : (folders ?? []).length > 0 ? (
+              (folders ?? []).map((folder) => (
                 <View key={folder.id}>
                   <Text>{folder.name}</Text>
                 </View>

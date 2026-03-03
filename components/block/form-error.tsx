@@ -37,7 +37,7 @@ export function FormError({ className, children, errors, ...props }: FormErrorPr
     return (
       <View className="ml-4 flex flex-col gap-1">
         {uniqueErrors.map((message, index) => (
-          <Text key={index} className="list-disc text-sm font-normal text-destructive">
+          <Text key={index} className="list-disc text-sm font-normal text-foreground">
             {message}
           </Text>
         ))}
@@ -50,11 +50,12 @@ export function FormError({ className, children, errors, ...props }: FormErrorPr
   }
 
   return (
-    <View
-      accessibilityRole="alert"
-      className={`text-sm font-normal text-destructive ${className ?? ""}`}
-      {...props}>
-      {typeof content === "string" ? <Text>{content}</Text> : content}
+    <View accessibilityRole="alert" className={` ${className ?? ""}`} {...props}>
+      {typeof content === "string" ? (
+        <Text className="text-sm font-normal text-muted-foreground">{content}</Text>
+      ) : (
+        content
+      )}
     </View>
   );
 }

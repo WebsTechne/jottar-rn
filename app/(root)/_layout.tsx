@@ -45,7 +45,7 @@ export default function RootLayout() {
           header: () => (
             <View
               style={{ paddingTop: insets.top, height: 48 + insets.top }}
-              className="top-0 flex flex-row items-center justify-between overflow-y-visible border-b border-border bg-background/90 px-4 backdrop-blur-lg">
+              className="top-0 flex flex-row items-center justify-between overflow-y-visible border-b border-border bg-background px-4">
               <HeaderTitle title={title} />
               <ThemeToggle />
             </View>

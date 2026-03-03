@@ -12,7 +12,10 @@ import { PortalHost } from "@rn-primitives/portal";
 import { ThemeProvider } from "@react-navigation/native";
 import { useColorScheme } from "nativewind";
 import { NAV_THEME } from "@/lib/theme";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { OverlayProvider } from "@/components/overlay";
+
+const queryClient = new QueryClient();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -29,7 +32,9 @@ export default function App() {
 
   return (
     <ThemeProvider value={NAV_THEME[theme ?? "light"]}>
-      <OverlayProvider>{fontsLoaded ? <Slot /> : null}</OverlayProvider>
+      <QueryClientProvider client={queryClient}>
+        <OverlayProvider>{fontsLoaded ? <Slot /> : null}</OverlayProvider>
+      </QueryClientProvider>
       <PortalHost />
     </ThemeProvider>
   );
