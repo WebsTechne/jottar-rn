@@ -51,7 +51,12 @@ export default function RootLayout() {
             </View>
           ),
 
-          tabBarStyle: { backgroundColor: currentTheme.colors.background },
+          tabBarStyle: {
+            backgroundColor: currentTheme.colors.background,
+            elevation: 0,
+            shadowOpacity: 0,
+            borderTopWidth: 0,
+          },
           tabBarActiveTintColor: currentTheme.colors.primary,
         }}>
         <Tabs.Screen

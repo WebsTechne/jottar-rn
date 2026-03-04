@@ -11,6 +11,8 @@ import { usePathname } from "expo-router";
 import { getDropdownFolders, getOverviewFolders } from "@/api/folders";
 import { showToast } from "@/lib/helpers/show-toast";
 import { useQuery } from "@tanstack/react-query";
+import { useColorScheme } from "nativewind";
+import { THEME } from "@/lib/theme";
 
 export const handleSignOut = async ({
   returnTo,
@@ -32,6 +34,9 @@ export const handleSignOut = async ({
 };
 
 export default function Screen() {
+  const { colorScheme: theme } = useColorScheme();
+  const currentTheme = THEME[theme ?? "light"];
+
   const { data: session } = authClient.useSession();
 
   const { push } = useRouter();
@@ -76,7 +81,15 @@ export default function Screen() {
   return (
     <>
       <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={currentTheme.cardForeground}
+            colors={[currentTheme.cardForeground]}
+            progressBackgroundColor={currentTheme.card}
+          />
+        }>
         <Section>
           <SectionTitle>Notes</SectionTitle>
           <SectionBody>
@@ -107,7 +120,7 @@ export default function Screen() {
 
         <Section>
           <SectionTitle>Folders</SectionTitle>
-          <SectionBody variant="flex">
+          <SectionBody variant="scroll">
             {foldersError ? (
               <View className="h-32 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border">
                 <Text className="text-muted-foreground">Something went wrong</Text>

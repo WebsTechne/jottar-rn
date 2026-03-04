@@ -108,9 +108,9 @@ export default function SignUp() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "android" ? "height" : "padding"}
-      className="flex-1">
-      <ScrollView className="grow" keyboardShouldPersistTaps="handled">
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View className="flex-1 gap-5 bg-background p-6 pt-7">
           <AuthMessage title="Create account" message="Sign up for the best experience" />
 

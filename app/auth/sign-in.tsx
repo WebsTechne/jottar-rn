@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { authClient } from "@/lib/auth-client";
-import { Section, SectionBody } from "@/components/block/section";
 import { useColorScheme } from "nativewind";
 import { THEME } from "@/lib/theme";
 import { Input } from "@/components/ui/input";
@@ -13,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons";
 import { FormError } from "@/components/block/form-error";
+import z from "zod";
 
 type SignInErrors = {
   email?: string;
@@ -41,15 +41,18 @@ export default function SignIn() {
 
   const passwordInputRef = useRef(null);
 
+  const emailSchema = z.string().email("Enter a valid email");
+
   const validateForm = () => {
     let errors: SignInErrors = {};
 
     if (!email) {
       errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = "Enter a valid email";
     }
     if (!password) errors.password = "Password is required";
+
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) errors.email = JSON.parse(emailResult.error.message)[0].message;
 
     setErrors(errors);
     return Object.keys(errors).length === 0;
