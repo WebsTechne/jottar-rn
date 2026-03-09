@@ -1,16 +1,17 @@
-import { useMemo, useState } from "react";
-import { RefreshControl, ScrollView, View } from "react-native";
-import { NoteCard, NoteCardSkeleton } from "@/components/notes/note-card";
-import { Section, SectionBody, SectionTitle } from "@/components/block/section";
 import { getNotes } from "@/api/notes";
-import { getDropdownFolders } from "@/api/folders";
 import { useQuery } from "@tanstack/react-query";
-import { Text } from "@/components/ui/text";
-import { Button } from "@/components/ui/button";
 import { useColorScheme } from "nativewind";
 import { THEME } from "@/lib/theme";
+import { useMemo, useState } from "react";
+import { RefreshControl, ScrollView, View } from "react-native";
+import { Section, SectionBody } from "@/components/block/section";
+import { Text } from "@/components/ui/text";
+import { Button } from "@/components/ui/button";
+import { NoteCard, NoteCardSkeleton } from "@/components/notes/note-card";
+import { getDropdownFolders } from "@/api/folders";
+import { Stack } from "expo-router";
 
-export default function Screen() {
+export default function FavoritesPage() {
   const [manualRefreshing, setManualRefreshing] = useState(false);
 
   const { colorScheme: theme } = useColorScheme();
@@ -20,6 +21,7 @@ export default function Screen() {
     queryKey: ["foldersDropdown"],
     queryFn: getDropdownFolders,
   });
+
   const {
     data: fetchedNotes,
     isLoading: notesPending,
@@ -32,30 +34,24 @@ export default function Screen() {
     retry: 1,
   });
 
-  const orderedNotes = useMemo(() => {
+  const notes = useMemo(() => {
     if (notesError || !fetchedNotes) return [];
-    const result = (fetchedNotes ?? []).filter((n) => !n.archived && n.trashedAt == null);
-    return [
-      ...result
-        .filter((n) => n.isPinned)
-        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
-      ...result
-        .filter((n) => !n.isPinned)
-        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
-    ];
+    const result = (fetchedNotes ?? []).filter(
+      (n) => !n.archived && n.trashedAt == null && n.favorite
+    );
+    return result.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
   }, [fetchedNotes, notesError]);
 
   const handleRefresh = async () => {
     setManualRefreshing(true);
-    try {
-      await refetchNotes();
-    } finally {
-      setManualRefreshing(false);
-    }
+    await refetchNotes();
+    setManualRefreshing(false);
   };
 
   return (
     <>
+      <Stack.Screen options={{ title: "Favorites" }} />
+
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -67,7 +63,6 @@ export default function Screen() {
           />
         }>
         <Section>
-          <SectionTitle>Notes</SectionTitle>
           <SectionBody>
             {notesError ? (
               <View className="h-32 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border">
@@ -82,13 +77,20 @@ export default function Screen() {
                 <NoteCardSkeleton />
                 <NoteCardSkeleton />
               </>
-            ) : orderedNotes.length > 0 ? (
-              orderedNotes.map((note) => (
-                <NoteCard key={note.id} note={note} view="active" folders={foldersDropdown || []} />
+            ) : notes.length > 0 ? (
+              notes.map((note) => (
+                <NoteCard
+                  key={note.id}
+                  note={note}
+                  view="favorites"
+                  folders={foldersDropdown || []}
+                />
               ))
             ) : (
               <View className="h-32 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border">
-                <Text className="text-muted-foreground">You do not have any notes</Text>
+                <Text className="text-muted-foreground">
+                  You haven't added any notes to favorites yet
+                </Text>
               </View>
             )}
           </SectionBody>

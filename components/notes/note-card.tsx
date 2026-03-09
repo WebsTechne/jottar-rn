@@ -17,8 +17,8 @@ import {
   StarIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
-import { type Note } from "@/types/notes";
-import { type FolderDropdownItem } from "@/types/folders";
+import { type Note } from "@/types/notes-types";
+import { type FolderDropdownItem } from "@/types/folders-types";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { formatDateTime } from "@/lib/helpers/format-date-time";
@@ -471,7 +471,7 @@ function NoteCard({ note, folders, onPatch, view }: Props) {
 
 function NoteCardSkeleton() {
   return (
-    <View className="flex-center h-[100px] w-full overflow-hidden rounded-2xl">
+    <View className="h-[100px] w-full overflow-hidden rounded-2xl flex-center">
       <Skeleton className="size-full !rounded-[inherit]" />
     </View>
   );

@@ -53,4 +53,4 @@ type FolderWithNotes = {
   };
 };
 
-export { type FolderOverview, FolderDropdownItem, FolderListItem, FolderWithNotes };
+export type { FolderOverview, FolderDropdownItem, FolderListItem, FolderWithNotes };

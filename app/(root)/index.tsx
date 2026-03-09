@@ -13,6 +13,8 @@ import { showToast } from "@/lib/helpers/show-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useColorScheme } from "nativewind";
 import { THEME } from "@/lib/theme";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
 
 export const handleSignOut = async ({
   returnTo,
@@ -34,6 +36,10 @@ export const handleSignOut = async ({
 };
 
 export default function Screen() {
+  const [manualRefreshing, setManualRefreshing] = useState(false);
+
+  const widths = [144.34, 160.13, 92.55];
+
   const { colorScheme: theme } = useColorScheme();
   const currentTheme = THEME[theme ?? "light"];
 
@@ -51,30 +57,29 @@ export default function Screen() {
 
   const {
     data: notes,
-    isFetching: notesPending,
+    isLoading: notesPending,
+    isFetching: notesFetching,
     refetch: refetchNotes,
     error: notesError,
   } = useQuery({ queryKey: ["overviewNotes"], queryFn: getOverviewNotes, retry: 1 });
 
   const {
     data: folders,
-    isFetching: foldersPending,
+    isLoading: foldersPending,
+    isFetching: foldersFetching,
     refetch: refetchFolders,
     error: foldersError,
-  } = useQuery({
-    queryKey: ["overviewFolders"],
-    queryFn: getOverviewFolders,
-    retry: 1,
-  });
-
-  const refreshing = notesPending || foldersPending;
+  } = useQuery({ queryKey: ["overviewFolders"], queryFn: getOverviewFolders, retry: 1 });
 
   const handleRefresh = async () => {
+    setManualRefreshing(true);
     try {
       await Promise.all([refetchNotes(), refetchFolders()]);
     } catch (err) {
       showToast("Error fetching data. Please try again.");
       console.error("Error fetching data: ", err);
+    } finally {
+      setManualRefreshing(false);
     }
   };
 
@@ -83,10 +88,10 @@ export default function Screen() {
       <ScrollView
         refreshControl={
           <RefreshControl
-            refreshing={refreshing}
+            refreshing={manualRefreshing}
             onRefresh={handleRefresh}
-            tintColor={currentTheme.cardForeground}
-            colors={[currentTheme.cardForeground]}
+            tintColor={currentTheme.mutedForeground}
+            colors={[currentTheme.mutedForeground]}
             progressBackgroundColor={currentTheme.card}
           />
         }>
@@ -120,30 +125,45 @@ export default function Screen() {
 
         <Section>
           <SectionTitle>Folders</SectionTitle>
-          <SectionBody variant="scroll">
-            {foldersError ? (
+
+          {foldersPending ? (
+            <SectionBody variant="scroll">
+              {[...Array(3)].map((_, i) => (
+                <View
+                  key={i}
+                  className="relative h-[42px] overflow-hidden rounded-2xl border border-border"
+                  style={{ width: widths[i] }}>
+                  <Skeleton className="size-full rounded-[inherit]" />
+                </View>
+              ))}
+            </SectionBody>
+          ) : foldersError ? (
+            <SectionBody>
               <View className="h-32 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border">
                 <Text className="text-muted-foreground">Something went wrong</Text>
                 <Button onPress={() => refetchFolders()}>
                   <Text>Refresh</Text>
                 </Button>
               </View>
-            ) : foldersPending ? (
-              <>
-                <NoteCardSkeleton />
-              </>
-            ) : (folders ?? []).length > 0 ? (
-              (folders ?? []).map((folder) => (
-                <View key={folder.id}>
-                  <Text>{folder.name}</Text>
-                </View>
-              ))
-            ) : (
+            </SectionBody>
+          ) : (folders ?? []).length < 1 ? (
+            <SectionBody>
               <View className="h-32 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border">
                 <Text className="text-muted-foreground">You do not have any folders</Text>
               </View>
-            )}
-          </SectionBody>
+            </SectionBody>
+          ) : (
+            <SectionBody variant="scroll">
+              {(folders ?? []).map((folder) => (
+                <Link
+                  key={folder.id}
+                  href={`/folders/${folder.slug}`}
+                  className="flex h-[42px] !max-w-max shrink-0 items-center rounded-xl border border-border bg-card p-2">
+                  <Text className="text-foreground">{folder.name}</Text>
+                </Link>
+              ))}
+            </SectionBody>
+          )}
         </Section>
 
         <Section>

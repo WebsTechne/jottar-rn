@@ -1,6 +1,6 @@
 import { authClient } from "@/lib/auth-client";
 import { showToast } from "@/lib/helpers/show-toast";
-import { Note } from "@/types/notes";
+import { Note } from "@/types/notes-types";
 
 const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}/api`;
 
@@ -28,6 +28,7 @@ const getNotes = async (): Promise<Note[]> => {
   const json = await res.json();
   return json.data;
 };
+
 const getOverviewNotes = async (): Promise<Note[]> => {
   const cookies = authClient.getCookie();
   const headers = { Cookie: cookies };
@@ -151,6 +152,7 @@ const toggleNoteFavorited = async (noteId: string, action?: string) => {
     return null;
   }
 };
+
 const toggleNoteArchived = async (noteId: string, action?: string) => {
   try {
     const cookies = authClient.getCookie();

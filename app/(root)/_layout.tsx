@@ -45,7 +45,8 @@ export default function RootLayout() {
           header: () => (
             <View
               style={{ paddingTop: insets.top, height: 48 + insets.top }}
-              className="top-0 flex flex-row items-center justify-between overflow-y-visible border-b border-border bg-background px-4">
+              className="top-0 flex flex-row items-center justify-between overflow-y-visible bg-background px-4">
+              {/*border-b border-border*/}
               <HeaderTitle title={title} />
               <ThemeToggle />
             </View>
@@ -74,6 +75,7 @@ export default function RootLayout() {
             ),
           }}
         />
+
         <Tabs.Screen
           name="notes"
           options={{
@@ -88,6 +90,7 @@ export default function RootLayout() {
             ),
           }}
         />
+
         <Tabs.Screen
           name="folders"
           options={{
@@ -102,6 +105,7 @@ export default function RootLayout() {
             ),
           }}
         />
+
         <Tabs.Screen
           name="tags"
           options={{
@@ -115,24 +119,25 @@ export default function RootLayout() {
             ),
           }}
         />
+
         <Tabs.Screen
-          name="settings"
+          name="account"
           options={{
             tabBarLabel: "You",
+            headerShown: false,
             tabBarIcon: ({ color, size }) => (
-              // <HugeiconsIcon icon={Setting07Icon} color={color} size={size} strokeWidth={1.5} />
               <Avatar
                 style={{
                   width: size,
                   height: size,
                   borderColor:
-                    pathname === "/settings" || pathname.startsWith("/settings")
+                    pathname === "/account" || pathname.startsWith("/account")
                       ? color
                       : "transparent",
                 }}
                 alt={`${name}'s Avatar`}
                 className={
-                  pathname === "/settings" || pathname.startsWith("/settings")
+                  pathname === "/account" || pathname.startsWith("/account")
                     ? "border-[2.1px]"
                     : "border-0"
                 }>

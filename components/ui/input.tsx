@@ -5,7 +5,7 @@ function Input({ className, ...props }: TextInputProps & React.RefAttributes<Tex
   return (
     <TextInput
       className={cn(
-        "flex h-10 w-full min-w-0 flex-row items-center rounded-lg border border-input bg-background px-3 py-1 text-base leading-5 text-foreground shadow-sm shadow-black/5 dark:!border-0 dark:bg-input/30 sm:h-9",
+        "flex h-10 w-full min-w-0 flex-row items-center rounded-lg border border-input bg-background px-3 py-1 text-base leading-5 text-foreground shadow-sm shadow-black/5 dark:!border-0 dark:!bg-input/30 sm:h-9",
         props.editable === false &&
           cn(
             "opacity-50",

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
 import { Link } from "expo-router";
 import { HugeiconsIcon } from "@hugeicons/react-native";
-import type { FolderListItem } from "@/types/folders";
+import type { FolderListItem } from "@/types/folders-types";
 import { cn } from "@/lib/utils";
 import { useOverlay } from "../overlay";
 
@@ -36,38 +36,38 @@ function FolderCard({ folder }: { folder: FolderListItem }) {
   };
 
   return (
-    <ContextMenu open={isOpen} onOpenChange={(v) => (v ? open(owner) : close())}>
-      <ContextMenuTrigger asChild>
-        <View
-          className={cn(
-            "relative flex h-[84px] w-full overflow-hidden rounded-2xl bg-muted p-3 !pb-2 transition-shadow duration-300 dark:!bg-card",
-            isOpen && "z-1005 shadow-sm"
-          )}>
-          <View className="relative h-[100px] w-full flex-1">
-            <View className="flex flex-row items-center justify-between gap-1">
-              <Text variant="h3" className="line-clamp-1 font-semibold !text-base tracking-tight">
-                {localFolder.name}
-              </Text>
-              <Text className="font shrink-0 rounded-lg bg-muted px-2 font-mono text-sm text-muted-foreground">
-                {folder._count.notes}
-              </Text>
-            </View>
-            <Text className="line-clamp-2 text-sm text-muted-foreground">
-              {localFolder.description || "No description"}
-            </Text>
-          </View>
-
-          {/* absolute clickable layer */}
-          <Link href={`/folders/${localFolder.slug}`} className="absolute inset-0 z-10" />
+    // <ContextMenu open={isOpen} onOpenChange={(v) => (v ? open(owner) : close())}>
+    // <ContextMenuTrigger asChild>}
+    <View
+      className={cn(
+        "relative flex h-[84px] w-[48%] overflow-hidden rounded-xl bg-muted p-3 !pb-2 transition-shadow duration-300 dark:!bg-card",
+        isOpen && "z-1005 shadow-sm"
+      )}>
+      <View className="relative h-full w-full flex-1">
+        <View className="flex flex-row items-center justify-between gap-1">
+          <Text variant="h3" className="line-clamp-1 flex-1 font-semibold !text-sm tracking-tight">
+            {localFolder.name}
+          </Text>
+          <Text className="shrink-0 rounded-lg bg-muted px-1 font-mono text-sm text-muted-foreground">
+            {folder._count.notes}
+          </Text>
         </View>
-      </ContextMenuTrigger>
-    </ContextMenu>
+        <Text className="line-clamp-2 w-full text-sm text-muted-foreground">
+          {localFolder.description || "No description"}
+        </Text>
+      </View>
+
+      {/* absolute clickable layer */}
+      <Link href={`/folders/${localFolder.slug}`} className="absolute inset-0 z-10" />
+    </View>
+    // </ContextMenuTrigger>
+    // </ContextMenu>
   );
 }
 
 function FolderCardSkeleton() {
   return (
-    <View className="h-[84px] w-full overflow-hidden rounded-2xl flex-center">
+    <View className="h-[84px] w-[48%] overflow-hidden rounded-2xl flex-center">
       <Skeleton className="size-full !rounded-[inherit]" />
     </View>
   );

@@ -1,12 +1,12 @@
 import { authClient } from "@/lib/auth-client";
 import { showToast } from "@/lib/helpers/show-toast";
-import { FolderDropdownItem, FolderListItem, FolderOverview } from "@/types/folders";
+import { FolderDropdownItem, FolderListItem, FolderOverview } from "@/types/folders-types";
 import { safeJson } from "./notes";
 
 const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}/api`;
 
 // ----- Folder functions -----
-export const getFolders = async (): Promise<FolderListItem[]> => {
+const getFolders = async (): Promise<FolderListItem[]> => {
   const cookies = authClient.getCookie();
   const headers = { Cookie: cookies };
 
@@ -22,7 +22,7 @@ export const getFolders = async (): Promise<FolderListItem[]> => {
   return json.data;
 };
 
-export const getOverviewFolders = async (): Promise<FolderOverview[]> => {
+const getOverviewFolders = async (): Promise<FolderOverview[]> => {
   const cookies = authClient.getCookie();
   const headers = { Cookie: cookies };
 
@@ -38,7 +38,7 @@ export const getOverviewFolders = async (): Promise<FolderOverview[]> => {
   return json.data;
 };
 
-export const getDropdownFolders = async (): Promise<FolderDropdownItem[]> => {
+const getDropdownFolders = async (): Promise<FolderDropdownItem[]> => {
   const cookies = authClient.getCookie();
   const headers = { Cookie: cookies };
 
@@ -53,3 +53,5 @@ export const getDropdownFolders = async (): Promise<FolderDropdownItem[]> => {
   const json = await res.json();
   return json.data;
 };
+
+export { getFolders, getOverviewFolders, getDropdownFolders };

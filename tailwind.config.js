@@ -9,8 +9,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
+        border: "hsl(var(--border) / <alpha-value>)",
+        input: "hsl(var(--input) / <alpha-value>)",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -42,6 +42,21 @@ module.exports = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        "chart-1": {
+          DEFAULT: "hsl(var(--chart-1) / <alpha-value>)",
+        },
+        "chart-2": {
+          DEFAULT: "hsl(var(--chart-2) / <alpha-value>)",
+        },
+        "chart-3": {
+          DEFAULT: "hsl(var(--chart-3) / <alpha-value>)",
+        },
+        "chart-4": {
+          DEFAULT: "hsl(var(--chart-4) / <alpha-value>)",
+        },
+        "chart-5": {
+          DEFAULT: "hsl(var(--chart-5) / <alpha-value>)",
         },
       },
       borderRadius: {
