@@ -1,26 +1,16 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Text } from "@/components/ui/text";
-import { authClient } from "@/lib/auth-client";
 import { QuillWrite01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "nativewind";
-import { useEffect } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function AuthLayout() {
   const { colorScheme: theme } = useColorScheme();
-  const router = useRouter();
-
   const insets = useSafeAreaInsets();
-
-  const { data: session, isPending } = authClient.useSession();
-
-  useEffect(() => {
-    if (!isPending && session) router.replace("/");
-  }, [session, isPending, router]);
 
   return (
     <>

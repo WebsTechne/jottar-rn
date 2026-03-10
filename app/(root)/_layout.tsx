@@ -29,8 +29,9 @@ export default function RootLayout() {
   const title = getDisplayTitle(pathname);
 
   const { data: session } = authClient.useSession();
+  if (!session) return <Loading />;
 
-  const { name, image } = session!.user;
+  const { name, image } = session.user;
   const { initials } = getInitials(name);
 
   return (
