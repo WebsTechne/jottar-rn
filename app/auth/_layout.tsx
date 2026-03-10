@@ -16,11 +16,11 @@ export default function AuthLayout() {
 
   const insets = useSafeAreaInsets();
 
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
-    if (session) router.replace("/");
-  }, [session, router]);
+    if (!isPending && session) router.replace("/");
+  }, [session, isPending, router]);
 
   return (
     <>

@@ -6,7 +6,6 @@ import "@/global.css";
 import { authClient } from "@/lib/auth-client";
 import getInitials from "@/lib/helpers/initials";
 import getDisplayTitle from "@/lib/helpers/get-display-title";
-
 import { NAV_THEME } from "@/lib/theme";
 import { Folder02Icon, Home09Icon, Note01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
@@ -17,11 +16,9 @@ import { useColorScheme } from "nativewind";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePathname } from "expo-router";
+import Loading from "@/components/loading";
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from "expo-router";
+export { ErrorBoundary } from "expo-router";
 
 export default function RootLayout() {
   const { colorScheme: theme } = useColorScheme();
@@ -32,8 +29,8 @@ export default function RootLayout() {
   const title = getDisplayTitle(pathname);
 
   const { data: session } = authClient.useSession();
-  if (!session) return <Redirect href="/auth/sign-in" />;
-  const { name, image } = session.user;
+
+  const { name, image } = session!.user;
   const { initials } = getInitials(name);
 
   return (

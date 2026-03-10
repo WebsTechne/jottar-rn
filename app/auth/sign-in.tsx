@@ -13,6 +13,7 @@ import { HugeiconsIcon } from "@hugeicons/react-native";
 import { ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons";
 import { FormError } from "@/components/block/form-error";
 import z from "zod";
+import { showToast } from "@/lib/helpers/show-toast";
 
 type SignInErrors = {
   email?: string;
@@ -82,7 +83,7 @@ export default function SignIn() {
         return;
       }
 
-      if (res.data) console.log(res.data);
+      if (res.data) showToast(`Welcome back, ${res.data.user.name}!`);
     } catch (error) {
       console.error(error);
     } finally {

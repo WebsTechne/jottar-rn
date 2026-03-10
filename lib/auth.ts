@@ -16,6 +16,12 @@ export const auth = betterAuth({
         ]
       : []),
   ],
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 60 * 24 * 14, // 14 days
+    },
+  },
   plugins: [expo()],
 
   ///// Social providers
